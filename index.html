@@ -1,83 +1,187 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>SparkOS Ultra</title>
+  <meta charset="UTF-UTF">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SparkOS Ultra Real</title>
+  <link rel="manifest" href="manifest.json">
   <style>
     body {
       margin: 0;
-      background: url('https://i.imgur.com/Bwz9p0U.jpeg') no-repeat center center;
-      background-size: cover;
-      color: white;
+      background: linear-gradient(to bottom right, #1e1e2f, #15151f);
       font-family: 'Segoe UI', sans-serif;
+      color: white;
+      overflow: hidden;
     }
-
+    #lock-screen {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: #000;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
     #desktop {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 20px;
-      padding: 30px;
+      display: none;
+      padding: 20px;
     }
-
-    .app {
+    .app-icon {
       width: 80px;
+      margin: 10px;
       text-align: center;
       cursor: pointer;
+      display: inline-block;
     }
-
-    .app img {
+    .app-icon img {
       width: 60px;
-      border-radius: 15px;
+      height: 60px;
+      border-radius: 10px;
     }
-
-    .app span {
-      display: block;
+    #window-container {
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      z-index: 10;
+    }
+    .window {
+      position: absolute;
+      width: 300px;
+      height: 400px;
+      background: #222;
+      border: 2px solid #555;
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 0 15px rgba(0,0,0,0.5);
+    }
+    .window-header {
+      background: #111;
+      padding: 10px;
+      cursor: move;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      color: #fff;
+      font-weight: bold;
+    }
+    iframe {
+      width: 100%;
+      height: calc(100% - 40px);
+      border: none;
+    }
+    .store-btn {
+      background: #0af;
+      border: none;
+      color: white;
+      padding: 8px 12px;
       margin-top: 5px;
-      font-size: 0.9em;
+      cursor: pointer;
+      border-radius: 6px;
     }
   </style>
 </head>
 <body>
 
-<h1 style="padding: 10px;">🌟 SparkOS Ultra Desktop</h1>
-
-<div id="desktop">
-  <div class="app" onclick="launchApp('chrome')">
-    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/87/Google_Chrome_icon_%282011%29.png/600px-Google_Chrome_icon_%282011%29.png">
-    <span>Chrome</span>
-  </div>
-
-  <div class="app" onclick="launchApp('playstore')">
-    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/7/78/Google_Play_Store_badge_EN.svg/512px-Google_Play_Store_badge_EN.svg.png">
-    <span>Play Store</span>
-  </div>
-
-  <div class="app" onclick="launchApp('youtube')">
-    <img src="https://upload.wikimedia.org/wikipedia/commons/b/b8/YouTube_Logo_2017.svg">
-    <span>YouTube</span>
-  </div>
-
-  <div class="app" onclick="launchApp('notes')">
-    <img src="https://cdn-icons-png.flaticon.com/512/2921/2921222.png">
-    <span>Notes</span>
-  </div>
+<div id="lock-screen">
+  <h1>🔒 Welcome to SparkOS</h1>
+  <p>Enter password to unlock:</p>
+  <input type="password" id="password" placeholder="••••••••" />
+  <button onclick="unlock()">Unlock</button>
 </div>
 
+<div id="desktop">
+  <h2 style="margin: 0;">👑 SparkOS Ultra Real</h2>
+  <div id="app-area"></div>
+</div>
+
+<div id="window-container"></div>
+
 <script>
-  function launchApp(app) {
-    switch(app) {
-      case 'chrome':
-        window.location.href = 'intent://#Intent;package=com.android.chrome;scheme=http;end';
-        break;
-      case 'playstore':
-        window.location.href = 'market://details?id=com.android.chrome';
-        break;
-      case 'youtube':
-        window.location.href = 'intent://www.youtube.com#Intent;package=com.google.android.youtube;scheme=https;end';
-        break;
-      case 'notes':
-        alert('📝 SparkNotes is coming soon!');
-        break;
+  const apps = {
+    chrome: {
+      name: "Chrome",
+      icon: "https://upload.wikimedia.org/wikipedia/commons/8/87/Google_Chrome_icon_%282011%29.png",
+      url: "https://www.google.com"
+    },
+    paint: {
+      name: "Paint",
+      icon: "https://cdn-icons-png.flaticon.com/512/3163/3163461.png",
+      url: "https://jspaint.app"
+    },
+    notes: {
+      name: "Notes",
+      icon: "https://cdn-icons-png.flaticon.com/512/3135/3135715.png",
+      url: "https://notes.spark.com" // (You can make your own HTML notes app later!)
+    },
+    yt: {
+      name: "YouTube",
+      icon: "https://cdn-icons-png.flaticon.com/512/1384/1384060.png",
+      url: "https://youtube.com"
     }
+  };
+
+  function unlock() {
+    const pass = document.getElementById("password").value;
+    if (pass === "sparkpower") {
+      document.getElementById("lock-screen").style.display = "none";
+      document.getElementById("desktop").style.display = "block";
+      loadApps();
+    } else {
+      alert("Wrong password!");
+    }
+  }
+
+  function loadApps() {
+    const appArea = document.getElementById("app-area");
+    Object.keys(apps).forEach(key => {
+      const app = apps[key];
+      const icon = document.createElement("div");
+      icon.className = "app-icon";
+      icon.innerHTML = `
+        <img src="${app.icon}" />
+        <div>${app.name}</div>
+      `;
+      icon.onclick = () => launchApp(app.name, app.url);
+      appArea.appendChild(icon);
+    });
+  }
+
+  function launchApp(title, url) {
+    const win = document.createElement("div");
+    win.className = "window";
+    win.style.top = "50px";
+    win.style.left = "50px";
+    win.innerHTML = `
+      <div class="window-header">
+        ${title}
+        <button onclick="this.closest('.window').remove()">❌</button>
+      </div>
+      <iframe src="${url}"></iframe>
+    `;
+    dragElement(win);
+    document.getElementById("window-container").appendChild(win);
+  }
+
+  function dragElement(el) {
+    const header = el.querySelector(".window-header");
+    let posX = 0, posY = 0, mouseX = 0, mouseY = 0;
+    header.onmousedown = function(e) {
+      e.preventDefault();
+      mouseX = e.clientX;
+      mouseY = e.clientY;
+      document.onmouseup = () => document.onmousemove = null;
+      document.onmousemove = function(e) {
+        posX = mouseX - e.clientX;
+        posY = mouseY - e.clientY;
+        mouseX = e.clientX;
+        mouseY = e.clientY;
+        el.style.top = (el.offsetTop - posY) + "px";
+        el.style.left = (el.offsetLeft - posX) + "px";
+      };
+    };
+  }
+
+  if ("serviceWorker" in navigator) {
+    navigator.serviceWorker.register("service-worker.js");
   }
 </script>
 
