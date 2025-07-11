@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>SparkOS Ultra</title>
+  <style>
+    body {
+      margin: 0;
+      background: url('https://i.imgur.com/Bwz9p0U.jpeg') no-repeat center center;
+      background-size: cover;
+      color: white;
+      font-family: 'Segoe UI', sans-serif;
+    }
+
+    #desktop {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 20px;
+      padding: 30px;
+    }
+
+    .app {
+      width: 80px;
+      text-align: center;
+      cursor: pointer;
+    }
+
+    .app img {
+      width: 60px;
+      border-radius: 15px;
+    }
+
+    .app span {
+      display: block;
+      margin-top: 5px;
+      font-size: 0.9em;
+    }
+  </style>
+</head>
+<body>
+
+<h1 style="padding: 10px;">🌟 SparkOS Ultra Desktop</h1>
+
+<div id="desktop">
+  <div class="app" onclick="launchApp('chrome')">
+    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/87/Google_Chrome_icon_%282011%29.png/600px-Google_Chrome_icon_%282011%29.png">
+    <span>Chrome</span>
+  </div>
+
+  <div class="app" onclick="launchApp('playstore')">
+    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/7/78/Google_Play_Store_badge_EN.svg/512px-Google_Play_Store_badge_EN.svg.png">
+    <span>Play Store</span>
+  </div>
+
+  <div class="app" onclick="launchApp('youtube')">
+    <img src="https://upload.wikimedia.org/wikipedia/commons/b/b8/YouTube_Logo_2017.svg">
+    <span>YouTube</span>
+  </div>
+
+  <div class="app" onclick="launchApp('notes')">
+    <img src="https://cdn-icons-png.flaticon.com/512/2921/2921222.png">
+    <span>Notes</span>
+  </div>
+</div>
+
+<script>
+  function launchApp(app) {
+    switch(app) {
+      case 'chrome':
+        window.location.href = 'intent://#Intent;package=com.android.chrome;scheme=http;end';
+        break;
+      case 'playstore':
+        window.location.href = 'market://details?id=com.android.chrome';
+        break;
+      case 'youtube':
+        window.location.href = 'intent://www.youtube.com#Intent;package=com.google.android.youtube;scheme=https;end';
+        break;
+      case 'notes':
+        alert('📝 SparkNotes is coming soon!');
+        break;
+    }
+  }
+</script>
+
+</body>
+</html>
